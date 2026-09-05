@@ -30,7 +30,7 @@ python3 make_plots_topo_entropy.py  # -> topo_entropy_verification.png
 
 python3 test_z2_lgt.py           
 
-What is reproduced - 
+# What is reproduced - 
 
 -Paper component	Status	Where
 
