@@ -2,9 +2,6 @@
 make_plots_multisize.py
 =========================
 
-Plot chi(h) and delta(h) from wilson_scan_multisize.py's saved results --
-the actual confinement/deconfinement order parameter, reproducing the
-paper's Section IV headline plot (Fig. 4-ish: chi crossing zero at h_c).
 """
 
 import json

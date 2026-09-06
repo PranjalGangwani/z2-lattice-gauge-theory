@@ -2,11 +2,6 @@
 make_plots.py
 =============
 
-Step 7 (part 1): turn scan_results.json (produced by observables.py) into
-verification plots:
-  1. Energy: exact vs QAOA, as a function of h
-  2. Fidelity |<psi_exact|psi_QAOA>|^2 vs h
-  3. Wilson loops (plaquette vs full-boundary) vs h, exact vs QAOA
 """
 
 import json

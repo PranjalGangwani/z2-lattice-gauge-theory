@@ -2,9 +2,6 @@
 test_z2_lgt.py
 ================
 
-Step 7 (part 2): a small pytest-style regression suite for the codebase.
-Run with:  pytest test_z2_lgt.py -v
-or plainly: python3 test_z2_lgt.py
 """
 
 import numpy as np

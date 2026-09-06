@@ -2,42 +2,6 @@
 physical_basis.py
 ==================
 
-Step 9: exact diagonalization that scales past ~14 qubits, by diagonalizing
-ONLY the physical (gauge-invariant) subspace instead of the full 2^n
-Hilbert space.
-
-The trick (Hadamard/Kramers-Wannier duality)
-----------------------------------------------
-Apply a Hadamard gate to EVERY qubit (a global unitary U = H^{\\otimes n}).
-Hadamard swaps X and Z (H X H = Z, H Z H = X), so in this transformed frame:
-
-    H_E' = U H_E U = sum_l (1 - Z_l)          -- now DIAGONAL
-    H_B' = U H_B U = -sum_p X_p1 X_p2 X_p3 X_p4  -- now flips 4 bits/plaquette
-    A_v'  = U A_v U = prod_{l in star(v)} Z_l  -- now DIAGONAL
-
-Since U is unitary, H'(h) = H_E' + h*H_B' has EXACTLY the same eigenvalues
-as the original H(h) -- we haven't approximated anything, just changed basis.
-
-Now look at A_v' acting on a computational basis state |x'> (x' a bitstring
-over links): its eigenvalue is (-1)^(sum of x'_l for l touching v). The
-physical condition A_v=+1 for every v becomes: every vertex must be touched
-an EVEN number of times by the "1" bits of x'. That is precisely the
-condition for x', viewed as a subset of the lattice's edges, to be a CYCLE
-(an Eulerian subgraph) -- the classic "cycle space" of a graph, of dimension
-k = n_links - n_vertices + 1 (the graph's cyclomatic number / first Betti
-number, assuming a connected lattice).
-
-So: instead of diagonalizing a 2^n x 2^n matrix, we enumerate the 2^k
-bitstrings in the cycle space (found via a spanning tree + fundamental
-cycles -- standard graph theory, no quantum objects needed) and build H'(h)
-restricted to JUST those 2^k basis states. For the paper's 18-qubit,
-L=3 periodic lattice: k = 18 - 9 + 1 = 10, so a 1024-dimensional problem
-instead of a 262144-dimensional one.
-
-Crucially: since we verified numerically (exact_diag.py) that the TRUE
-ground state always lives in the physical sector, this reduced computation
-gives the exact same ground energy as full diagonalization would -- we
-proved that on the small 2x2 lattice below.
 """
 
 from collections import deque
@@ -163,37 +127,12 @@ def reduced_hamiltonian(lat: Lattice, h: float, states=None, index_of=None) -> s
 
 
 def ground_state_reduced(lat: Lattice, h: float, k: int = 1, states=None, index_of=None, seed: int = 0):
-    """Exact ground energy/state within the physical subspace only.
-    Returns (evals, evecs_reduced) where evecs_reduced are length-2^k
-    vectors in the cycle-space basis (NOT the ambient 2^n qubit basis --
-    see module docstring; use only for energies/overlaps within this
-    reduced representation, not for direct comparison with a QAOA
-    Statevector without an explicit basis-change).
-    """
+    
     if states is None or index_of is None:
         states, index_of = enumerate_physical_states(lat)
     H = reduced_hamiltonian(lat, h, states, index_of)
     n_states = H.shape[0]
 
-    # DENSE diagonalization, not eigsh -- a real bug we hit: eigsh's
-    # which="SA" mode silently returned E0=6.0 instead of the true E0=0 at
-    # h=0 on this exact 18-qubit reduced Hamiltonian, for every random
-    # seed and every (ncv, k) combination we tried -- the true ground
-    # state is an isolated singleton far below a large degenerate cluster
-    # (the cluster comes from odd-length loops that wrap around our L=3
-    # torus, which exist precisely because 3 is odd), and ARPACK's
-    # Lanczos search kept latching onto the cluster instead. Shift-invert
-    # fixes the correctness issue but is ~150x slower here (same fill-in
-    # problem as in exact_diag.py). Since our reduced Hamiltonians are at
-    # most a few thousand-dimensional for the lattice sizes we actually
-    # use (2^10=1024 at L=3, and dense stays practical somewhat beyond
-    # that), dense diagonalization is both simpler and has NO convergence
-    # risk at all -- it's a direct algorithm, not an iterative search.
-    # We only fall back to (seeded) eigsh past a size where dense becomes
-    # impractical (memory ~ n_states^2 * 16 bytes) -- e.g. L=4's
-    # 131,072-dim reduced problem -- and are upfront that the same failure
-    # mode could in principle recur there; our physics scans avoid h=0
-    # exactly for that reason.
     DENSE_LIMIT = 4096
     if n_states <= DENSE_LIMIT:
         evals, evecs = np.linalg.eigh(H.toarray())

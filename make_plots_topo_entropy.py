@@ -1,10 +1,6 @@
 """
 make_plots_topo_entropy.py
 ============================
-
-Plot S_topo(h) from topo_entropy_results.json -- the paper's headline
-topological-order signature: S_topo ~ 0 in the confined phase, S_topo ->
--ln(2) deep in the deconfined/topologically-ordered phase.
 """
 
 import json

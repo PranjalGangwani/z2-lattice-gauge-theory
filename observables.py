@@ -2,34 +2,6 @@
 observables.py
 ================
 
-Step 6: physical observables -- Wilson loops -- and a scan over the coupling
-h to see the confinement -> deconfinement crossover, comparing QAOA against
-exact diagonalization at every point.
-
-Wilson loop
------------
-For a closed path Gamma of links on the lattice,
-
-    W_Gamma = prod_{l in Gamma} Z_l
-
-Its expectation value in the ground state is predicted (Eq. 7 of the paper)
-to decay as
-
-    <W_Gamma> = exp(-chi(h) * A_Gamma - delta(h) * P_Gamma)
-
-with A_Gamma the enclosed area (number of plaquettes) and P_Gamma the
-perimeter (number of links) of the loop.
-
-  * h < h_c (confined):    chi(h) > 0  -> AREA LAW decay (bigger loops decay
-                            exponentially faster)
-  * h > h_c (deconfined):  chi(h) -> 0 -> PERIMETER LAW (only boundary
-                            matters, area is "free")
-
-On our tiny 2x2-plaquette lattice we only have two distinct loop sizes
-available (a single plaquette, area=1, perimeter=4; and the full lattice
-boundary, area=4, perimeter=8) -- not enough points to fit chi(h) and
-delta(h) separately, but plenty to see the qualitative crossover and to
-sanity-check QAOA against ED at every h.
 """
 
 import numpy as np
